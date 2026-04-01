@@ -1,7 +1,0 @@
-StudentID,StudentName,CourseID,CourseName,Instructor
-101,Alice Johnson,CS50,Introduction to Computer Science,David Malan
-102,Bob Smith,MATH101,Calculus I,Maria Garcia
-103,Charlie Davis,HIST210,Modern World History,Robert Brown
-101,Alice Johnson,MATH101,Calculus I,Maria Garcia
-104,Dana Lee,BIO110,General Biology,Sarah Jenkins
-102,Bob Smith,CS50,Introduction to Computer Science,David Malan
