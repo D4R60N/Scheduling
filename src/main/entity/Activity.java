@@ -11,6 +11,7 @@ public class Activity {
     }
 
     public Course getCourse() { return course; }
+    public int getIndex() { return index; }
     public int getTimeSlot() { return timeSlot; }
     public void setTimeSlot(int timeSlot) { this.timeSlot = timeSlot; }
 

@@ -6,6 +6,8 @@ import main.entity.Schedule;
 import main.io.ScheduleReader;
 import main.algorithm.Scheduler;
 import main.algorithm.GameTheoryScheduler;
+import main.algorithm.AILayoutOnlyScheduler; // New import for AI Layout Only
+import main.algorithm.AIScheduler; // Full AI Scheduler
 
 import java.io.InputStream;
 import java.util.List;
@@ -13,18 +15,35 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Run with Graph Coloring
-        System.out.println("=== SCHEDULING METHOD 1: GRAPH COLORING ===");
-        runScheduling(true);
+        System.out.println("=== SCHEDULING METHOD 1: GRAPH COLORING (Structural Only) ===");
+        runScheduling(1);
 
-        System.out.println("\n" + "=".repeat(40) + "\n");
+        printSeparator();
 
         // Run with Game Theory
-        System.out.println("=== SCHEDULING METHOD 2: GAME THEORY (VOTING/AUCTION) ===");
-        runScheduling(false);
+        System.out.println("=== SCHEDULING METHOD 2: GAME THEORY (Voting/Auction) ===");
+        runScheduling(2);
+
+        printSeparator();
+
+        // Run with AI Layout Only
+        System.out.println("=== SCHEDULING METHOD 3: AI-BASED LAYOUT + DETERMINISTIC ASSIGNMENT ===");
+        runScheduling(3);
+
+        printSeparator();
+
+        // Run with Full AI Scheduling
+        System.out.println("=== SCHEDULING METHOD 4: FULL AI SCHEDULING (Layout + Assignment) ===");
+        runScheduling(4);
     }
 
-    private static void runScheduling(boolean useGraphColoring) {
-        // Reload resources to ensure fresh data
+    private static void printSeparator() {
+        System.out.println();
+        for (int i = 0; i < 40; i++) System.out.print("=");
+        System.out.println("\n");
+    }
+
+    private static void runScheduling(int method) {
         InputStream coursesIs = Main.class.getClassLoader().getResourceAsStream("courses.csv");
         InputStream studentsIs = Main.class.getClassLoader().getResourceAsStream("students.csv");
 
@@ -43,12 +62,21 @@ public class Main {
 
         Schedule schedule = new Schedule(courses, students);
 
-        if (useGraphColoring) {
-            Scheduler.scheduleActivities(schedule);
-            Scheduler.assignStudents(schedule);
-        } else {
-            GameTheoryScheduler.scheduleActivities(schedule);
-            GameTheoryScheduler.assignStudentsAuction(schedule);
+        switch (method) {
+            case 1:
+                Scheduler.scheduleActivities(schedule);
+                Scheduler.assignStudents(schedule);
+                break;
+            case 2:
+                GameTheoryScheduler.scheduleActivities(schedule);
+                GameTheoryScheduler.assignStudentsAuction(schedule);
+                break;
+            case 3: // AI Layout Only
+                AILayoutOnlyScheduler.scheduleAndAssign(schedule);
+                break;
+            case 4: // Full AI Scheduling
+                AIScheduler.scheduleAndAssign(schedule);
+                break;
         }
 
         printResults(schedule);
