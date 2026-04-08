@@ -28,6 +28,7 @@ public class ScheduleReader {
         List<Student> students = new ArrayList<>();
         try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream))) {
             String[] nextLine;
+            reader.readNext();
             while ((nextLine = reader.readNext()) != null) {
                 if (nextLine.length < 2) continue; // At least name and one pref
                 int numPrefs = nextLine.length - 1;

@@ -38,21 +38,20 @@ public class Scheduler {
             if (a.getCourse().equals(currentCourse) && a.getTimeSlot() != -1) options.add(a);
         }
 
-        options.sort((a1, a2) -> {
-            int p1 = student.getPreferences().length > a1.getTimeSlot() ? student.getPreferences()[a1.getTimeSlot()] : 0;
-            int p2 = student.getPreferences().length > a2.getTimeSlot() ? student.getPreferences()[a2.getTimeSlot()] : 0;
-            return p2 - p1;
+        options.sort((a, b) -> {
+            int pA = student.getPreferences().length > a.getTimeSlot() ? student.getPreferences()[a.getTimeSlot()] : 0;
+            int pB = student.getPreferences().length > b.getTimeSlot() ? student.getPreferences()[b.getTimeSlot()] : 0;
+            return pB - pA;
         });
 
-        for (Activity activity : options) {
-            int slot = activity.getTimeSlot();
+        for (Activity a : options) {
+            int slot = a.getTimeSlot();
             if (!usedSlots.contains(slot)) {
-                if (schedule.assignStudentToActivity(student, activity)) {
+                if (schedule.assignStudentToActivity(student, a)) {
                     usedSlots.add(slot);
                     if (findBestStudentAssignment(student, schedule, courseIndex + 1, usedSlots)) return true;
-                    // Backtrack
                     usedSlots.remove(slot);
-                    schedule.unassignStudentFromActivity(student, activity);
+                    schedule.unassignStudentFromActivity(student, a);
                 }
             }
         }

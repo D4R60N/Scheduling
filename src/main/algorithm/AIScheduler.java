@@ -3,6 +3,7 @@ package main.algorithm;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.cdimascio.dotenv.Dotenv;
 import main.entity.Activity;
 import main.entity.Course;
 import main.entity.Schedule;
@@ -15,10 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 public class AIScheduler {
 
-    private static final String API_KEY = System.getenv("GOOGLE_AI_KEY");
-
-
+    private static final String API_KEY = System.getenv("GOOGLE_AI_KEY") == null ? Dotenv.load().get("API_KEY") : System.getenv("GOOGLE_AI_KEY");
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=" + API_KEY;
+
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)

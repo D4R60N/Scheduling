@@ -14,7 +14,6 @@ public class GameTheoryScheduler {
         int totalSlots = schedule.getTotalSlots();
         List<Student> students = schedule.getStudents();
 
-        // 1. Voting phase: Sum preferences across all students for each slot
         double[] slotVotes = new double[totalSlots];
         for (Student s : students) {
             int[] prefs = s.getPreferences();
@@ -23,12 +22,10 @@ public class GameTheoryScheduler {
             }
         }
 
-        // 2. Rank slots by preference (highest first)
         Integer[] rankedSlots = new Integer[totalSlots];
         for (int i = 0; i < totalSlots; i++) rankedSlots[i] = i;
         Arrays.sort(rankedSlots, (a, b) -> Double.compare(slotVotes[b], slotVotes[a]));
 
-        // 3. Round-robin layout: Assign best slots across all courses fairly
         Map<Course, List<Activity>> courseToActivities = new LinkedHashMap<>();
         for (Activity a : activities) {
             courseToActivities.computeIfAbsent(a.getCourse(), k -> new ArrayList<>()).add(a);
@@ -52,10 +49,7 @@ public class GameTheoryScheduler {
     public static void assignStudentsAuction(Schedule schedule) {
         schedule.clearAssignments();
         List<Student> students = new ArrayList<>(schedule.getStudents());
-        // For game theory, fairness can be improved by sorting students 
-        // who might have harder constraints or higher needs first,
-        // but shuffle is a standard "Serial Dictatorship" lottery.
-        Collections.shuffle(students);
+//        Collections.shuffle(students);
 
         for (Student student : students) {
             findBestStudentAssignment(student, schedule, 0, new HashSet<>());
@@ -88,7 +82,6 @@ public class GameTheoryScheduler {
                 if (schedule.assignStudentToActivity(student, a)) {
                     usedSlots.add(slot);
                     if (findBestStudentAssignment(student, schedule, courseIndex + 1, usedSlots)) return true;
-                    // Correct backtracking rollback
                     usedSlots.remove(slot);
                     schedule.unassignStudentFromActivity(student, a);
                 }

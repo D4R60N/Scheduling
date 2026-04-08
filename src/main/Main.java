@@ -14,27 +14,23 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Run with Graph Coloring
         System.out.println("=== SCHEDULING METHOD 1: GRAPH COLORING (Structural Only) ===");
         runScheduling(1);
 
         printSeparator();
 
-        // Run with Game Theory
         System.out.println("=== SCHEDULING METHOD 2: GAME THEORY (Voting/Auction) ===");
         runScheduling(2);
 
         printSeparator();
 
-        // Run with AI Layout Only
-        System.out.println("=== SCHEDULING METHOD 3: AI-BASED LAYOUT + DETERMINISTIC ASSIGNMENT ===");
-        runScheduling(3);
-
-        printSeparator();
-
-        // Run with Full AI Scheduling
-        System.out.println("=== SCHEDULING METHOD 4: FULL AI SCHEDULING (Layout + Assignment) ===");
-        runScheduling(4);
+//        System.out.println("=== SCHEDULING METHOD 3: AI-BASED LAYOUT + DETERMINISTIC ASSIGNMENT ===");
+//        runScheduling(3);
+//
+//        printSeparator();
+//
+//        System.out.println("=== SCHEDULING METHOD 4: FULL AI SCHEDULING (Layout + Assignment) ===");
+//        runScheduling(4);
     }
 
     private static void printSeparator() {
@@ -71,10 +67,10 @@ public class Main {
                 GameTheoryScheduler.scheduleActivities(schedule);
                 GameTheoryScheduler.assignStudentsAuction(schedule);
                 break;
-            case 3: // AI Layout Only
+            case 3:
                 AILayoutOnlyScheduler.scheduleAndAssign(schedule);
                 break;
-            case 4: // Full AI Scheduling
+            case 4:
                 AIScheduler.scheduleAndAssign(schedule);
                 break;
         }
@@ -90,6 +86,6 @@ public class Main {
         }
 
         System.out.println("\nSummary:");
-        System.out.println("Total Student Satisfaction (Higher is better): " + schedule.calculateTotalSatisfaction());
+        System.out.println("Total Student Satisfaction: " + schedule.calculateTotalSatisfaction());
     }
 }

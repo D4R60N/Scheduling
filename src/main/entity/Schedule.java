@@ -6,9 +6,7 @@ public class Schedule {
     private final List<Course> courses;
     private final List<Student> students;
     private final List<Activity> allActivities;
-    // Map of student to their assigned activity for each course
     private final Map<Student, Map<Course, Activity>> assignments;
-    // Capacity check: activity -> current number of students
     private final Map<Activity, Integer> activityOccupancy;
     private final int totalSlots;
 
@@ -81,7 +79,7 @@ public class Schedule {
         return inSlot;
     }
 
-    public int calculateTotalSatisfaction() {
+    public float calculateTotalSatisfaction() {
         int satisfaction = 0;
         for (Student s : students) {
             Map<Course, Activity> sAssign = assignments.get(s);
@@ -93,6 +91,6 @@ public class Schedule {
                 }
             }
         }
-        return satisfaction;
+        return (float) satisfaction / (courses.size() * students.size());
     }
 }

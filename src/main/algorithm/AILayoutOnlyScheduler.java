@@ -3,6 +3,7 @@ package main.algorithm;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.cdimascio.dotenv.Dotenv;
 import main.entity.Activity;
 import main.entity.Course;
 import main.entity.Schedule;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AILayoutOnlyScheduler {
 
-    private static final String API_KEY = System.getenv("GOOGLE_AI_KEY");
+    private static final String API_KEY = System.getenv("GOOGLE_AI_KEY") == null ? Dotenv.load().get("API_KEY") : System.getenv("GOOGLE_AI_KEY");
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=" + API_KEY;
     
     private static final OkHttpClient client = new OkHttpClient.Builder()
@@ -31,13 +32,10 @@ public class AILayoutOnlyScheduler {
         }
 
         try {
-            // 1. Ask AI for the optimal layout of activities into slots
             String prompt = generateLayoutPrompt(schedule);
             String aiResponse = callGeminiAPI(prompt);
             applyAILayout(aiResponse, schedule);
 
-            // 2. Use deterministic backtracking to assign students to these slots optimally
-            // This ensures we get the best possible assignments for the layout provided by AI.
             assignStudentsDeterministic(schedule);
             
         } catch (Exception e) {
@@ -134,32 +132,39 @@ public class AILayoutOnlyScheduler {
 
     private static void assignStudentsDeterministic(Schedule schedule) {
         schedule.clearAssignments();
-        // Use the same logic as the other schedulers for fair comparison
         for (Student student : schedule.getStudents()) {
             findBestStudentAssignment(student, schedule, 0, new HashSet<>());
         }
     }
 
-    private static boolean findBestStudentAssignment(Student student, Schedule schedule, int courseIndex, Set<Integer> usedSlots) {
+    private static boolean findBestStudentAssignment(
+            Student student,
+            Schedule schedule,
+            int courseIndex,
+            Set<Integer> usedSlots) {
+
         if (courseIndex == schedule.getCourses().size()) return true;
+
         Course currentCourse = schedule.getCourses().get(courseIndex);
         List<Activity> options = new ArrayList<>();
         for (Activity a : schedule.getAllActivities()) {
             if (a.getCourse().equals(currentCourse) && a.getTimeSlot() != -1) options.add(a);
         }
-        options.sort((a1, a2) -> {
-            int p1 = student.getPreferences().length > a1.getTimeSlot() ? student.getPreferences()[a1.getTimeSlot()] : 0;
-            int p2 = student.getPreferences().length > a2.getTimeSlot() ? student.getPreferences()[a2.getTimeSlot()] : 0;
-            return p2 - p1;
+
+        options.sort((a, b) -> {
+            int pA = student.getPreferences().length > a.getTimeSlot() ? student.getPreferences()[a.getTimeSlot()] : 0;
+            int pB = student.getPreferences().length > b.getTimeSlot() ? student.getPreferences()[b.getTimeSlot()] : 0;
+            return pB - pA;
         });
-        for (Activity activity : options) {
-            int slot = activity.getTimeSlot();
+
+        for (Activity a : options) {
+            int slot = a.getTimeSlot();
             if (!usedSlots.contains(slot)) {
-                if (schedule.assignStudentToActivity(student, activity)) {
+                if (schedule.assignStudentToActivity(student, a)) {
                     usedSlots.add(slot);
                     if (findBestStudentAssignment(student, schedule, courseIndex + 1, usedSlots)) return true;
                     usedSlots.remove(slot);
-                    schedule.unassignStudentFromActivity(student, activity);
+                    schedule.unassignStudentFromActivity(student, a);
                 }
             }
         }
