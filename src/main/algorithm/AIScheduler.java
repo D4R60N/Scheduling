@@ -36,12 +36,12 @@ public class AIScheduler {
             System.out.println("... Waiting for Full AI response (Layout + Assignment) ...");
             String prompt = generateFullAIPrompt(schedule);
             String aiResponse = callGeminiAPI(prompt);
-            
+
             if (aiResponse != null) {
                 parseAndApplyFullAIResponse(aiResponse, schedule);
                 System.out.println("... Full AI response received and applied.");
             }
-            
+
         } catch (Exception e) {
             System.err.println("Full AI Call failed: " + e.getMessage());
         }
@@ -51,7 +51,7 @@ public class AIScheduler {
         JsonObject data = new JsonObject();
         data.addProperty("totalStudents", schedule.getStudents().size());
         data.addProperty("totalSlotsAvailable", schedule.getTotalSlots());
-        
+
         JsonArray coursesArr = new JsonArray();
         for (Course c : schedule.getCourses()) {
             JsonObject co = new JsonObject();
@@ -74,19 +74,15 @@ public class AIScheduler {
         }
         data.add("students", studentsArr);
 
-        return "You are a scheduling expert. Optimize a schedule based on this JSON data. \n" +
-               "IMPORTANT RULES:\n" +
-               "1. Every course MUST have exactly the 'requiredNumberOfActivities' mentioned in the data.\n" +
-               "2. Each activity must be assigned to a UNIQUE time slot (0 to " + (schedule.getTotalSlots()-1) + "). One activity per slot ONLY.\n" +
-               "3. Every student MUST be assigned to exactly one activity for EVERY course.\n" +
-               "4. An activity cannot exceed its 'maxCapacityPerActivity'.\n" +
-               "5. Maximize the global satisfaction (sum of preferences for assigned slots).\n\n" +
-               "Output ONLY raw JSON format:\n" +
-               "{\n" +
-               "  \"activities\": [ { \"course\": \"Math\", \"group\": 1, \"slot\": 0 }, ... ],\n" +
-               "  \"assignments\": [ { \"student\": \"Student1\", \"course\": \"Math\", \"group\": 1 }, ... ]\n" +
-               "}\n\n" +
-               "Input Data: " + data.toString();
+        return "You are a university scheduling expert. Optimize the schedule based on this data:\n\n" +
+                "RULES:\n" +
+                "1. Every course MUST have the exact 'requiredActivities' specified.\n" +
+                "2. Each activity must be in a UNIQUE slot (0 to " + (schedule.getTotalSlots() - 1) + ").\n" +
+                "3. One activity per slot ONLY. Empty slots are allowed.\n" +
+                "4. Maximize global student satisfaction (sum of preferences).\n" +
+                "5. Every student must be assigned to exactly 1 activity per course, respecting capacity.\n\n" +
+                "Output ONLY raw JSON: { \"activities\": [ { \"course\": \"Math\", \"group\": 1, \"slot\": 0 }, ... ], \"assignments\": [ { \"student\": \"Student1\", \"course\": \"Math\", \"group\": 1 }, ... ] }\n\n" +
+                "DATA: " + data.toString();
     }
 
     private static String callGeminiAPI(String prompt) throws IOException {
@@ -109,7 +105,7 @@ public class AIScheduler {
         try (Response response = client.newCall(request).execute()) {
             String respStr = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) throw new IOException("HTTP " + response.code() + ": " + respStr);
-            
+
             JsonObject respJson = gson.fromJson(respStr, JsonObject.class);
             return respJson.getAsJsonArray("candidates").get(0).getAsJsonObject()
                     .getAsJsonObject("content").getAsJsonArray("parts").get(0).getAsJsonObject()
@@ -120,7 +116,7 @@ public class AIScheduler {
     private static void parseAndApplyFullAIResponse(String response, Schedule schedule) {
         try {
             String cleanJson = response.replaceAll("(?s)```json\\s*(.*?)\\s*```", "$1")
-                                       .replaceAll("(?s)```\\s*(.*?)\\s*```", "$1").trim();
+                    .replaceAll("(?s)```\\s*(.*?)\\s*```", "$1").trim();
             JsonObject result = gson.fromJson(cleanJson, JsonObject.class);
 
             JsonArray activitiesArr = result.getAsJsonArray("activities");

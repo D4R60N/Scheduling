@@ -18,7 +18,7 @@ public class AILayoutOnlyScheduler {
 
     private static final String API_KEY = System.getenv("GOOGLE_AI_KEY") == null ? Dotenv.load().get("API_KEY") : System.getenv("GOOGLE_AI_KEY");
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=" + API_KEY;
-    
+
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
@@ -37,7 +37,7 @@ public class AILayoutOnlyScheduler {
             applyAILayout(aiResponse, schedule);
 
             assignStudentsDeterministic(schedule);
-            
+
         } catch (Exception e) {
             System.err.println("AI Layout Call failed: " + e.getMessage());
         }
@@ -46,7 +46,7 @@ public class AILayoutOnlyScheduler {
     private static String generateLayoutPrompt(Schedule schedule) {
         JsonObject data = new JsonObject();
         data.addProperty("totalSlots", schedule.getTotalSlots());
-        
+
         JsonArray coursesArr = new JsonArray();
         for (Course c : schedule.getCourses()) {
             JsonObject co = new JsonObject();
@@ -65,14 +65,14 @@ public class AILayoutOnlyScheduler {
         }
         data.add("aggregatedSlotPreferences", gson.toJsonTree(totalPrefPerSlot));
 
-        return "You are a scheduling expert. Decide which activity goes into which time slot (0 to " + (schedule.getTotalSlots() - 1) + ").\n" +
-               "Rules:\n" +
-               "1. Each activity must have a UNIQUE slot. One activity per slot ONLY.\n" +
-               "2. A course has multiple activities (groups). Assign each group to a unique slot.\n" +
-               "3. Use the aggregatedSlotPreferences to place activities in slots students actually like.\n\n" +
-               "Output ONLY raw JSON:\n" +
-               "{ \"activities\": [ { \"course\": \"Math\", \"group\": 1, \"slot\": 0 }, ... ] }\n\n" +
-               "Data: " + data.toString();
+        return "You are a university scheduling expert. Optimize the schedule based on this data:\n\n" +
+                "RULES:\n" +
+                "1. Every course MUST have the exact 'requiredActivities' specified.\n" +
+                "2. Each activity must be in a UNIQUE slot (0 to " + (schedule.getTotalSlots() - 1) + ").\n" +
+                "3. One activity per slot ONLY. Empty slots are allowed.\n" +
+                "4. Maximize global student satisfaction (sum of preferences).\n\n" +
+                "Output ONLY raw JSON: { \"activities\": [ { \"course\": \"Math\", \"group\": 1, \"slot\": 0 }, ... ] }\n\n" +
+                "DATA: " + data.toString();
     }
 
     private static String callGeminiAPI(String prompt) throws IOException {
@@ -105,10 +105,10 @@ public class AILayoutOnlyScheduler {
     private static void applyAILayout(String response, Schedule schedule) {
         try {
             String cleanJson = response.replaceAll("(?s)```json\\s*(.*?)\\s*```", "$1")
-                                       .replaceAll("(?s)```\\s*(.*?)\\s*```", "$1").trim();
+                    .replaceAll("(?s)```\\s*(.*?)\\s*```", "$1").trim();
             JsonObject result = gson.fromJson(cleanJson, JsonObject.class);
             JsonArray activitiesArr = result.getAsJsonArray("activities");
-            
+
             for (Activity a : schedule.getAllActivities()) a.setTimeSlot(-1);
 
             for (int i = 0; i < activitiesArr.size(); i++) {
@@ -116,7 +116,7 @@ public class AILayoutOnlyScheduler {
                 String courseName = act.get("course").getAsString();
                 int group = act.get("group").getAsInt();
                 int slot = act.get("slot").getAsInt();
-                
+
                 for (Activity a : schedule.getAllActivities()) {
                     if (a.getCourse().getName().equalsIgnoreCase(courseName) && a.getIndex() == (group - 1)) {
                         a.setTimeSlot(slot);
