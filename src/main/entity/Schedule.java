@@ -17,6 +17,12 @@ public class Schedule {
         this.assignments = new HashMap<>();
         this.activityOccupancy = new HashMap<>();
 
+        int maxPrefs = 0;
+        for (Student s : students) {
+            maxPrefs = Math.max(maxPrefs, s.getPreferences().length);
+        }
+        this.totalSlots = maxPrefs;
+
         for (Course course : courses) {
             int numStudents = students.size();
             int maxPerActivity = course.getMaxActivitySize();
@@ -29,11 +35,11 @@ public class Schedule {
             }
         }
 
-        int maxPrefs = 0;
-        for (Student s : students) {
-            maxPrefs = Math.max(maxPrefs, s.getPreferences().length);
+        // Error if activities cannot fit into the available slots
+        if (allActivities.size() > totalSlots) {
+            throw new IllegalArgumentException("Error: Cannot fit " + allActivities.size() + 
+                " required activities into " + totalSlots + " available time slots.");
         }
-        this.totalSlots = Math.max(maxPrefs, allActivities.size());
     }
 
     public List<Course> getCourses() { return courses; }
@@ -91,6 +97,7 @@ public class Schedule {
                 }
             }
         }
+        if (courses.isEmpty() || students.isEmpty()) return 0;
         return (float) satisfaction / (courses.size() * students.size());
     }
 }

@@ -57,7 +57,6 @@ public class AILayoutOnlyScheduler {
         }
         data.add("courses", coursesArr);
 
-        // Send a summary of student preferences per slot so AI can decide on layout
         double[] totalPrefPerSlot = new double[schedule.getTotalSlots()];
         for (Student s : schedule.getStudents()) {
             for (int i = 0; i < Math.min(s.getPreferences().length, totalPrefPerSlot.length); i++) {
