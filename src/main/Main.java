@@ -86,6 +86,6 @@ public class Main {
         }
 
         System.out.println("\nSummary:");
-        System.out.println("Total Student Satisfaction: " + schedule.calculateTotalSatisfaction());
+        System.out.println("Total Student Satisfaction: " + schedule.calculateAverageSatisfaction());
     }
 }

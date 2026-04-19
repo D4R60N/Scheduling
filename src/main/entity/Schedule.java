@@ -85,19 +85,19 @@ public class Schedule {
         return inSlot;
     }
 
-    public float calculateTotalSatisfaction() {
-        int satisfaction = 0;
+    public float calculateAverageSatisfaction() {
+        if (courses.isEmpty() || students.isEmpty()) return 0;
+        int totalSatisfaction = 0;
         for (Student s : students) {
             Map<Course, Activity> sAssign = assignments.get(s);
             if (sAssign == null) continue;
             for (Activity a : sAssign.values()) {
                 int slot = a.getTimeSlot();
                 if (slot >= 0 && slot < s.getPreferences().length) {
-                    satisfaction += s.getPreferences()[slot];
+                    totalSatisfaction += s.getPreferences()[slot];
                 }
             }
         }
-        if (courses.isEmpty() || students.isEmpty()) return 0;
-        return (float) satisfaction / (courses.size() * students.size());
+        return (float) totalSatisfaction / (students.size() * courses.size());
     }
 }
