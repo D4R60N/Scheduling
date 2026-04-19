@@ -48,45 +48,72 @@ public class GameTheoryScheduler {
 
     public static void assignStudentsAuction(Schedule schedule) {
         schedule.clearAssignments();
-        List<Student> students = new ArrayList<>(schedule.getStudents());
-//        Collections.shuffle(students);
+        List<Student> students = schedule.getStudents();
+        List<Course> courses = schedule.getCourses();
 
-        for (Student student : students) {
-            findBestStudentAssignment(student, schedule, 0, new HashSet<>());
-        }
-    }
-
-    private static boolean findBestStudentAssignment(
-            Student student,
-            Schedule schedule,
-            int courseIndex,
-            Set<Integer> usedSlots) {
-
-        if (courseIndex == schedule.getCourses().size()) return true;
-
-        Course currentCourse = schedule.getCourses().get(courseIndex);
-        List<Activity> options = new ArrayList<>();
-        for (Activity a : schedule.getAllActivities()) {
-            if (a.getCourse().equals(currentCourse) && a.getTimeSlot() != -1) options.add(a);
-        }
-
-        options.sort((a, b) -> {
-            int pA = student.getPreferences().length > a.getTimeSlot() ? student.getPreferences()[a.getTimeSlot()] : 0;
-            int pB = student.getPreferences().length > b.getTimeSlot() ? student.getPreferences()[b.getTimeSlot()] : 0;
-            return pB - pA;
-        });
-
-        for (Activity a : options) {
-            int slot = a.getTimeSlot();
-            if (!usedSlots.contains(slot)) {
-                if (schedule.assignStudentToActivity(student, a)) {
-                    usedSlots.add(slot);
-                    if (findBestStudentAssignment(student, schedule, courseIndex + 1, usedSlots)) return true;
-                    usedSlots.remove(slot);
-                    schedule.unassignStudentFromActivity(student, a);
+        List<Bid> allBids = new ArrayList<>();
+        for (Student s : students) {
+            for (Activity a : schedule.getAllActivities()) {
+                if (a.getTimeSlot() != -1) {
+                    int pref = s.getPreferences().length > a.getTimeSlot() ? s.getPreferences()[a.getTimeSlot()] : 0;
+                    if (pref > 0) {
+                        allBids.add(new Bid(s, a, pref));
+                    }
                 }
             }
         }
-        return false;
+
+        allBids.sort((b1, b2) -> Double.compare(b2.value, b1.value));
+
+        Set<String> studentCoursePairAssigned = new HashSet<>();
+
+        for (Bid bid : allBids) {
+            String assignmentKey = bid.student.getName() + "_" + bid.activity.getCourse().getName();
+
+            if (studentCoursePairAssigned.contains(assignmentKey)) continue;
+
+            if (isStudentFreeInSlot(bid.student, schedule, bid.activity.getTimeSlot())) {
+                if (schedule.assignStudentToActivity(bid.student, bid.activity)) {
+                    studentCoursePairAssigned.add(assignmentKey);
+                }
+            }
+        }
+
+        for (Student s : students) {
+            for (Course c : courses) {
+                if (!studentCoursePairAssigned.contains(s.getName() + "_" + c.getName())) {
+                    fillBestEffort(s, c, schedule);
+                }
+            }
+        }
+    }
+
+    private static boolean isStudentFreeInSlot(Student s, Schedule schedule, int slot) {
+        Map<Course, Activity> current = schedule.getStudentSchedule(s);
+        for (Activity a : current.values()) {
+            if (a.getTimeSlot() == slot) return false;
+        }
+        return true;
+    }
+
+    private static void fillBestEffort(Student s, Course c, Schedule schedule) {
+        for (Activity a : schedule.getAllActivities()) {
+            if (a.getCourse().equals(c) && a.getTimeSlot() != -1) {
+                if (isStudentFreeInSlot(s, schedule, a.getTimeSlot())) {
+                    if (schedule.assignStudentToActivity(s, a)) return;
+                }
+            }
+        }
+    }
+
+    private static class Bid {
+        Student student;
+        Activity activity;
+        double value;
+        Bid(Student s, Activity a, double v) {
+            this.student = s;
+            this.activity = a;
+            this.value = v;
+        }
     }
 }

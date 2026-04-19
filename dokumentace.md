@@ -15,9 +15,9 @@ V programu jsou porovnávány čtyři odlišné metodiky:
 - Zajišťuje rozprostření aktivit do dostupných slotů. V této fázi se nebere ohled na preference studentů.
 - **Přiřazení studentů**: Provádí se následně deterministickým algoritmem (backtracking) pro maximalizaci spokojenosti v rámci daného rozvržení.
 
-### B. Teorie her (Aukce)
-- Studenti "hlasují" svými preferencemi o tom, které sloty jsou nejcennější. Aktivity jsou do slotů rozdělovány systémem Round-Robin podle celkového součtu hlasů pro dané sloty.
-- Studenti jsou náhodně seřazeni a v tomto pořadí si vybírají nejlepší dostupné aktivity bez slotových konfliktů (každý student maximalizuje svůj užitek).
+### B. Teorie her (Voting & Auction)
+- Studenti hlasují svými preferencemi pro jednotlivé sloty. Aktivity jsou rozdělovány do slotů podle celkového součtu hlasů. Tím je zajištěno, že nejžádanější časy jsou spravedlivě rozděleny mezi různé kurzy.
+- Každý student podává virtuální "příhozy" na aktivity úměrně svým preferencím. Tyto příhozy jsou zpracovány globálně (od nejvyšších po nejnižší). Studenti s nejsilnějším zájmem o konkrétní slot tak vyhrávají své místo jako první, dokud se nenaplní kapacity nebo nedojde ke konfliktu v rozvrhu.
 
 ### C. AI + Deterministické přiřazení
 - Hybridní přístup. AI model (Google Gemini) dostane agregovaná data o preferencích a rozhodne o optimálním rozmístění aktivit do slotů.

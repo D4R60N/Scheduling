@@ -23,14 +23,14 @@ public class Main {
         runScheduling(2);
 
         printSeparator();
-
-        System.out.println("=== SCHEDULING METHOD 3: AI-BASED LAYOUT + DETERMINISTIC ASSIGNMENT ===");
-        runScheduling(3);
-
-        printSeparator();
-
-        System.out.println("=== SCHEDULING METHOD 4: FULL AI SCHEDULING (Layout + Assignment) ===");
-        runScheduling(4);
+//
+//        System.out.println("=== SCHEDULING METHOD 3: AI-BASED LAYOUT + DETERMINISTIC ASSIGNMENT ===");
+//        runScheduling(3);
+//
+//        printSeparator();
+//
+//        System.out.println("=== SCHEDULING METHOD 4: FULL AI SCHEDULING (Layout + Assignment) ===");
+//        runScheduling(4);
     }
 
     private static void printSeparator() {
