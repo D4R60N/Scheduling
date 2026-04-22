@@ -15,7 +15,7 @@ V programu jsou porovnávány čtyři odlišné metodiky:
 - Zajišťuje rozprostření aktivit do dostupných slotů. V této fázi se nebere ohled na preference studentů.
 - **Přiřazení studentů**: Provádí se následně deterministickým algoritmem (backtracking) pro maximalizaci spokojenosti v rámci daného rozvržení.
 
-### B. Teorie her (Voting & Auction)
+### B. Teorie her: Aukce
 - Studenti hlasují svými preferencemi pro jednotlivé sloty. Aktivity jsou rozdělovány do slotů podle celkového součtu hlasů. Tím je zajištěno, že nejžádanější časy jsou spravedlivě rozděleny mezi různé kurzy.
 - Každý student podává virtuální "příhozy" na aktivity úměrně svým preferencím. Tyto příhozy jsou zpracovány globálně (od nejvyšších po nejnižší). Studenti s nejsilnějším zájmem o konkrétní slot tak vyhrávají své místo jako první, dokud se nenaplní kapacity nebo nedojde ke konfliktu v rozvrhu.
 
@@ -40,4 +40,4 @@ Hlavním kritériem pro objektivní porovnání rozvrhů je průměrná spokojen
   - `Gson` pro práci s JSON (komunikace s AI).
   - `OkHttp` pro síťovou komunikaci s Google Gemini API.
   - `Dotenv` pro načtení proměnných prostředí.
-- **API**: Vyžaduje nastavenou proměnnou prostředí `GOOGLE_AI_KEY`, nebo `.env` soubor s api klíčem pro funkčnost AI modulů.
+- **API**: Vyžaduje nastavenou proměnnou prostředí `GOOGLE_AI_KEY`, nebo `.env` soubor s porměnnou `API_KEY` pro funkčnost AI modulů.

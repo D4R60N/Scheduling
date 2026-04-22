@@ -33,7 +33,6 @@ public class AIScheduler {
         }
 
         try {
-            System.out.println("... Waiting for Full AI response (Layout + Assignment) ...");
             String prompt = generateFullAIPrompt(schedule);
             String aiResponse = callGeminiAPI(prompt);
 

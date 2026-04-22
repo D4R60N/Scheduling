@@ -6,30 +6,30 @@ import main.entity.Schedule;
 import main.io.ScheduleReader;
 import main.algorithm.Scheduler;
 import main.algorithm.GameTheoryScheduler;
-import main.algorithm.AILayoutOnlyScheduler; // New import for AI Layout Only
-import main.algorithm.AIScheduler; // Full AI Scheduler
+import main.algorithm.AILayoutOnlyScheduler;
+import main.algorithm.AIScheduler;
 
 import java.io.InputStream;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=== SCHEDULING METHOD 1: GRAPH COLORING (Structural Only) ===");
+        System.out.println("=== Barvení grafu ===");
         runScheduling(1);
 
         printSeparator();
 
-        System.out.println("=== SCHEDULING METHOD 2: GAME THEORY (Voting/Auction) ===");
+        System.out.println("=== Teorie her: aukce ===");
         runScheduling(2);
 
         printSeparator();
 
-        System.out.println("=== SCHEDULING METHOD 3: AI-BASED LAYOUT + DETERMINISTIC ASSIGNMENT ===");
+        System.out.println("=== AI + deterministické přiřazování ===");
         runScheduling(3);
 
         printSeparator();
 
-        System.out.println("=== SCHEDULING METHOD 4: FULL AI SCHEDULING (Layout + Assignment) ===");
+        System.out.println("=== AI + AI přiřazování ===");
         runScheduling(4);
     }
 
@@ -79,13 +79,13 @@ public class Main {
     }
 
     private static void printResults(Schedule schedule) {
-        System.out.println("\nActivity Layout (Slot assignments):");
+        System.out.println("\nRozvržení:");
         for (int i = 0; i < schedule.getTotalSlots(); i++) {
             System.out.print("Slot " + (i + 1) + ": ");
             System.out.println(schedule.getActivitiesInSlot(i));
         }
 
-        System.out.println("\nSummary:");
-        System.out.println("Total Student Satisfaction: " + schedule.calculateAverageSatisfaction());
+        System.out.println("\nSouhrn:");
+        System.out.println("Celková spokojenost studentů: " + schedule.calculateAverageSatisfaction());
     }
 }
